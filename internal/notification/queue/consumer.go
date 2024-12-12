@@ -7,15 +7,34 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	execution "github.com/ammyy9908/codejudge/internal/execution/models"
 	"github.com/streadway/amqp"
 )
 
+var rabbitMQURL = getRabbitMQURL()
+
+func getRabbitMQURL() string {
+	url := os.Getenv("RABBITMQ_URL")
+	if url == "" {
+		return "amqp://guest:guest@localhost:5672/"
+	}
+	return url
+}
+
+var websocketServiceURL = getWebSocketServiceURL()
+
+func getWebSocketServiceURL() string {
+	url := os.Getenv("WEBSOCKET_SERVICE_URL")
+	if url == "" {
+		return "http://localhost:8000/send" // Default for local development
+	}
+	return url
+}
+
 var (
-	rabbitMQURL         = "amqp://guest:guest@localhost:5672/"
-	executionQueue      = "execution_queue"
-	websocketServiceURL = "http://localhost:8081/send"
+	executionQueue = "execution_queue"
 )
 
 // StartConsumer starts consuming execution results from the RabbitMQ execution queue

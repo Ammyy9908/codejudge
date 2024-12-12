@@ -10,7 +10,7 @@ import (
 
 func main() {
 	// Initialize Redis
-	if err := redis.InitializeRedis("localhost:6379", ""); err != nil {
+	if err := redis.InitializeRedis("redis:6379", ""); err != nil {
 		log.Fatalf("Failed to connect to Redis: %v", err)
 	}
 
@@ -20,6 +20,6 @@ func main() {
 	// Register the /send endpoint for receiving execution results
 	http.HandleFunc("/send", handlers.SendResult)
 
-	log.Println("WebSocket service running on port 8081...")
-	log.Fatal(http.ListenAndServe(":8081", nil))
+	log.Println("WebSocket service running on port 8080...")
+	log.Fatal(http.ListenAndServe(":8000", nil))
 }

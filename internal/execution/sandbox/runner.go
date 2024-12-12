@@ -13,14 +13,16 @@ import (
 func ExecuteCode(submission execution.Submission) execution.ExecutionResult {
 	var cmd *exec.Cmd
 
-	// Handle the code execution based on the language
+	fmt.Println("Executing code...", submission.Language)
+	fmt.Println("Code:", submission.Code)
+
 	switch submission.Language {
 	case "python":
 		cmd = exec.Command("python3", "-c", submission.Code)
+		fmt.Println("Running Python code:", cmd.String())
 
 	case "go":
 		fmt.Println("Running Go code...")
-		// Write Go code to a temporary file
 		tmpFile, err := os.CreateTemp("", "*.go")
 		if err != nil {
 			return execution.ExecutionResult{
@@ -28,20 +30,16 @@ func ExecuteCode(submission execution.Submission) execution.ExecutionResult {
 				Error: fmt.Sprintf("Failed to create temporary file: %v", err),
 			}
 		}
-		defer os.Remove(tmpFile.Name()) // Ensure the file is deleted after execution
+		defer os.Remove(tmpFile.Name())
 
-		// Write the code to the temporary file
 		if _, err := tmpFile.WriteString(submission.Code); err != nil {
 			return execution.ExecutionResult{
 				ID:    submission.ID,
 				Error: fmt.Sprintf("Failed to write code to file: %v", err),
 			}
 		}
-
-		// Close the file before execution
 		tmpFile.Close()
-
-		// Use go run to execute the file
+		fmt.Printf("Temporary file created: %s\n", tmpFile.Name())
 		cmd = exec.Command("go", "run", tmpFile.Name())
 
 	default:
@@ -56,15 +54,17 @@ func ExecuteCode(submission execution.Submission) execution.ExecutionResult {
 	cmd.Stdout = &out
 	cmd.Stderr = &stderr
 
-	// Run the command
 	err := cmd.Run()
 	if err != nil {
+		fmt.Printf("Execution error: %v\n", err)
+		fmt.Printf("Stderr: %s\n", stderr.String())
 		return execution.ExecutionResult{
 			ID:    submission.ID,
 			Error: stderr.String(),
 		}
 	}
 
+	fmt.Printf("Execution successful. Stdout: %s\n", out.String())
 	return execution.ExecutionResult{
 		ID:     submission.ID,
 		Output: out.String(),

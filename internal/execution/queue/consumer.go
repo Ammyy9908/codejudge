@@ -3,6 +3,7 @@ package queue
 import (
 	"encoding/json"
 	"log"
+	"os"
 
 	"github.com/streadway/amqp"
 
@@ -10,7 +11,16 @@ import (
 	"github.com/ammyy9908/codejudge/internal/execution/sandbox"
 )
 
-var rabbitMQURL = "amqp://guest:guest@localhost:5672/"
+var rabbitMQURL = getRabbitMQURL()
+
+func getRabbitMQURL() string {
+	url := os.Getenv("RABBITMQ_URL")
+	if url == "" {
+		return "amqp://guest:guest@localhost:5672/"
+	}
+	return url
+}
+
 var submissionQueue = "submission_queue"
 
 func StartConsumer() error {
